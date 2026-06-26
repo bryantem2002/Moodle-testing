@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Moodle - Análisis Predictivo de Riesgo</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f8f9fa; padding: 20px; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        button { background-color: #007bff; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #dee2e6; padding: 12px; text-align: left; }
+        th { background-color: #e9ecef; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Análisis Predictivo de Riesgo de Deserción con IA</h2>
+        <button id="btn-ejecutar" onclick="ejecutarIA()">Ejecutar IA</button>
+        
+        <table>
+            <thead>
+                <tr><th>Código</th><th>Alumno</th><th>Riesgo IA (ML)</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>INF-101</td><td>Juan Pérez</td><td id="riesgo-1">Sin evaluar</td></tr>
+                <tr><td>INF-102</td><td>Maria Gomez</td><td id="riesgo-2">Sin evaluar</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function ejecutarIA() {
+            document.getElementById('btn-ejecutar').innerText = 'Procesando...';
+            setTimeout(() => {
+                document.getElementById('riesgo-1').innerText = 'Alto Riesgo (87%)';
+                document.getElementById('riesgo-1').style.color = 'red';
+                document.getElementById('riesgo-2').innerText = 'En Buen Camino (12%)';
+                document.getElementById('riesgo-2').style.color = 'green';
+                document.getElementById('btn-ejecutar').innerText = 'Ejecutar IA';
+            }, 3000); // Simula que la IA tarda 3 segundos en calcular
+        }
+    </script>
+</body>
+</html>
