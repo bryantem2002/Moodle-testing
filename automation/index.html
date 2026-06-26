@@ -2,43 +2,645 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Moodle - Análisis Predictivo de Riesgo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moodle TMMi - Analítica Predictiva</title>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f8f9fa; padding: 20px; }
-        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        button { background-color: #007bff; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #dee2e6; padding: 12px; text-align: left; }
-        th { background-color: #e9ecef; }
+        /* Base y Reset */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        /* Utilidades */
+        .hidden { display: none !important; }
+        .fade-out { opacity: 0; transition: opacity 0.5s ease; pointer-events: none; }
+        
+        /* PANTALLA 1: Login */
+        #login-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: opacity 0.5s ease;
+        }
+        
+        .login-card {
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        
+        .login-card h1 {
+            color: #0f172a;
+            font-size: 28px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .login-card p {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus {
+            border-color: #0f766e;
+        }
+        
+        #btn-ingresar {
+            width: 100%;
+            padding: 12px;
+            background-color: #0f766e;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        #btn-ingresar:hover {
+            background-color: #115e59;
+        }
+
+        #login-error {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 15px;
+            min-height: 20px;
+        }
+
+        /* Encabezado Moodle Global */
+        .moodle-header {
+            background-color: white;
+            border-bottom: 1px solid #dee2e6;
+            padding: 20px 0 0 0;
+        }
+
+        .moodle-title {
+            text-align: center;
+            font-size: 24px;
+            color: #212529;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .moodle-nav {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 0 20px;
+        }
+
+        .moodle-nav a {
+            text-decoration: none;
+            color: #495057;
+            padding: 10px 5px;
+            font-size: 15px;
+            border-bottom: 3px solid transparent;
+        }
+
+        .moodle-nav a.active {
+            color: #0f766e;
+            border-bottom-color: #0f766e;
+            font-weight: 600;
+        }
+
+        /* PANTALLA 2: Área Personal */
+        #area-personal-screen {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .welcome-banner {
+            background-color: white;
+            padding: 20px;
+            border-bottom: 1px solid #dee2e6;
+            text-align: center;
+        }
+
+        .welcome-banner h2 {
+            font-size: 22px;
+            color: #212529;
+            font-weight: 600;
+        }
+
+        .courses-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+            width: 100%;
+        }
+
+        .courses-title {
+            font-size: 20px;
+            color: #495057;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+
+        .course-card {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            max-width: 400px;
+        }
+
+        .course-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+            border-color: #0f766e;
+        }
+
+        .course-card-image {
+            background: linear-gradient(135deg, #0f766e, #20c997);
+            height: 120px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+
+        .course-card h3 {
+            color: #212529;
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .course-card p {
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        /* PANTALLA 3: Dashboard Predictivo */
+        #dashboard-screen {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+            width: 100%;
+        }
+
+        .module-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .module-title h2 {
+            font-size: 28px;
+            color: #212529;
+            margin-bottom: 5px;
+        }
+
+        .module-title p {
+            color: #6c757d;
+            font-size: 15px;
+        }
+
+        #btn-ejecutar {
+            background-color: #0f766e;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.3s, opacity 0.3s;
+        }
+
+        #btn-ejecutar:hover:not(:disabled) {
+            background-color: #115e59;
+        }
+
+        #btn-ejecutar:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        /* Tarjetas de Métricas */
+        .metrics-container {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .metric-card {
+            flex: 1;
+            border-radius: 8px;
+            padding: 25px 20px;
+            color: white;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .card-alto { background-color: #c82333; }
+        .card-medio { background-color: #f0ad4e; }
+        .card-buen { background-color: #218838; }
+
+        .metric-card h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+
+        .metric-card .numero {
+            font-size: 48px;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        /* Tabla de Alumnos */
+        .table-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            overflow: hidden;
+            border: 1px solid #dee2e6;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            color: #495057;
+            text-align: left;
+            padding: 15px 20px;
+            font-weight: 600;
+            border-bottom: 2px solid #dee2e6;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 15px 20px;
+            border-bottom: 1px solid #f1f3f5;
+            vertical-align: middle;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .user-name { font-weight: 600; color: #212529; display: block; }
+        .user-email { font-size: 13px; color: #6c757d; }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        
+        .badge-gray { background-color: #e9ecef; color: #495057; }
+        .badge-green { background-color: #d4edda; color: #155724; }
+        
+        .riesgo-container {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .riesgo-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .riesgo-main-text {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .riesgo-sub-text {
+            font-size: 13px;
+            color: #6c757d;
+        }
+
+        .riesgo-rojo { color: #dc3545; }
+        .riesgo-naranja { color: #fd7e14; }
+        .riesgo-verde { color: #28a745; }
+
+        .spin-icon {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
     </style>
 </head>
 <body>
-    <div class="card">
-        <h2>Análisis Predictivo de Riesgo de Deserción con IA</h2>
-        <button id="btn-ejecutar" onclick="ejecutarIA()">Ejecutar IA</button>
-        
-        <table>
-            <thead>
-                <tr><th>Código</th><th>Alumno</th><th>Riesgo IA (ML)</th></tr>
-            </thead>
-            <tbody>
-                <tr><td>INF-101</td><td>Juan Pérez</td><td id="riesgo-1">Sin evaluar</td></tr>
-                <tr><td>INF-102</td><td>Maria Gomez</td><td id="riesgo-2">Sin evaluar</td></tr>
-            </tbody>
-        </table>
+
+    <!-- PANTALLA 1: LOGIN -->
+    <div id="login-screen">
+        <div class="login-card">
+            <h1>Moodle TMMi</h1>
+            <p>Acceso al Panel de Analítica Predictiva</p>
+            
+            <div class="form-group">
+                <input type="text" id="username" placeholder="profesor@tmmi.edu">
+            </div>
+            <div class="form-group">
+                <input type="password" id="password" placeholder="Contraseña">
+            </div>
+            
+            <button id="btn-ingresar">Ingresar al Curso</button>
+            <div id="login-error"></div>
+        </div>
     </div>
 
+    <!-- PANTALLA 2: ÁREA PERSONAL -->
+    <div id="area-personal-screen" class="hidden">
+        
+        <!-- Encabezado Moodle Global -->
+        <header class="moodle-header">
+            <div class="moodle-title">Moodle TMMi</div>
+            <nav class="moodle-nav">
+                <a href="#" class="active">Área Personal</a>
+                <a href="#">Inicio del sitio</a>
+                <a href="#">Calendario</a>
+                <a href="#">Archivos privados</a>
+                <a href="#">Mis cursos</a>
+            </nav>
+        </header>
+
+        <div class="welcome-banner">
+            <h2>Bienvenido, Docente Bryan Salazar</h2>
+        </div>
+
+        <main class="courses-container">
+            <h3 class="courses-title">Mis cursos asignados</h3>
+            
+            <div class="course-card" id="card-curso-tmmi">
+                <div class="course-card-image"></div>
+                <h3>Gestión de Calidad y Testing TMMi</h3>
+                <p>Sección: Tesis - Semestre 2026-I</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- PANTALLA 3: DASHBOARD PREDICTIVO -->
+    <div id="dashboard-screen" class="hidden">
+        
+        <!-- Encabezado Moodle del Curso -->
+        <header class="moodle-header">
+            <div class="moodle-title">Gestión de Calidad y Testing TMMi</div>
+            <nav class="moodle-nav">
+                <a href="#" class="active">Curso</a>
+                <a href="#">Configuración</a>
+                <a href="#">Participantes</a>
+                <a href="#">Calificaciones</a>
+                <a href="#">Actividades</a>
+                <a href="#">Más v</a>
+            </nav>
+        </header>
+
+        <!-- Contenido Principal -->
+        <main class="main-content">
+            <div class="module-header">
+                <div class="module-title">
+                    <h2>Análisis Predictivo de Riesgo</h2>
+                    <p>Modelo entrenado con acceso, entregas y participación</p>
+                </div>
+                <button id="btn-ejecutar">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;" id="icon-refresh">
+                        <polyline points="23 4 23 10 17 10"></polyline>
+                        <polyline points="1 20 1 14 7 14"></polyline>
+                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                    </svg>
+                    <span id="btn-ejecutar-text">Ejecutar IA</span>
+                </button>
+            </div>
+
+            <!-- Tarjetas de Métricas -->
+            <div class="metrics-container">
+                <div class="metric-card card-alto">
+                    <h3>Riesgo Alto</h3>
+                    <div class="numero" id="contador-alto">0</div>
+                </div>
+                <div class="metric-card card-medio">
+                    <h3>Riesgo Medio</h3>
+                    <div class="numero" id="contador-medio">0</div>
+                </div>
+                <div class="metric-card card-buen">
+                    <h3>En Buen Camino</h3>
+                    <div class="numero" id="contador-buen">0</div>
+                </div>
+            </div>
+
+            <!-- Tabla de Alumnos -->
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nombre / Apellido(s)</th>
+                            <th>Correo electrónico</th>
+                            <th>Rol</th>
+                            <th>Último acceso</th>
+                            <th>Tareas Entregadas</th>
+                            <th>Estatus</th>
+                            <th>Riesgo IA (ML)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Fila 1: Laura Gómez -->
+                        <tr id="fila-laura">
+                            <td><span class="user-name">Laura Gómez</span></td>
+                            <td><span class="user-email">laura.gomez@tesis.demo</span></td>
+                            <td><span class="badge badge-gray">Estudiante</span></td>
+                            <td>15 días</td>
+                            <td>1 / 4 tareas</td>
+                            <td><span class="badge badge-green">Activo</span></td>
+                            <td>
+                                <div class="riesgo-container" id="riesgo-laura">
+                                    <div class="riesgo-header">
+                                        <span class="riesgo-main-text">Sin evaluar (S/D)</span>
+                                    </div>
+                                    <span class="riesgo-sub-text">Muestra baja participación en foros.</span>
+                                </div>
+                            </td>
+                        </tr>
+                        <!-- Fila 2: Ana Rojas -->
+                        <tr id="fila-ana">
+                            <td><span class="user-name">Ana Rojas</span></td>
+                            <td><span class="user-email">ana.rojas@tesis.demo</span></td>
+                            <td><span class="badge badge-gray">Estudiante</span></td>
+                            <td>5 días</td>
+                            <td>2 / 4 tareas</td>
+                            <td><span class="badge badge-green">Activo</span></td>
+                            <td>
+                                <div class="riesgo-container" id="riesgo-ana">
+                                    <div class="riesgo-header">
+                                        <span class="riesgo-main-text">Sin evaluar (S/D)</span>
+                                    </div>
+                                    <span class="riesgo-sub-text">Últimas entregas realizadas a destiempo.</span>
+                                </div>
+                            </td>
+                        </tr>
+                        <!-- Fila 3: Carlos Pérez -->
+                        <tr id="fila-carlos">
+                            <td><span class="user-name">Carlos Pérez</span></td>
+                            <td><span class="user-email">carlos.perez@tesis.demo</span></td>
+                            <td><span class="badge badge-gray">Estudiante</span></td>
+                            <td>Hace 2 horas</td>
+                            <td>4 / 4 tareas</td>
+                            <td><span class="badge badge-green">Activo</span></td>
+                            <td>
+                                <div class="riesgo-container" id="riesgo-carlos">
+                                    <div class="riesgo-header">
+                                        <span class="riesgo-main-text">Sin evaluar (S/D)</span>
+                                    </div>
+                                    <span class="riesgo-sub-text">Tareas completadas con calificaciones altas.</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- LÓGICA JAVASCRIPT -->
     <script>
-        function ejecutarIA() {
-            document.getElementById('btn-ejecutar').innerText = 'Procesando...';
-            setTimeout(() => {
-                document.getElementById('riesgo-1').innerText = 'Alto Riesgo (87%)';
-                document.getElementById('riesgo-1').style.color = 'red';
-                document.getElementById('riesgo-2').innerText = 'En Buen Camino (12%)';
-                document.getElementById('riesgo-2').style.color = 'green';
-                document.getElementById('btn-ejecutar').innerText = 'Ejecutar IA';
-            }, 3000); // Simula que la IA tarda 3 segundos en calcular
-        }
+        document.addEventListener('DOMContentLoaded', () => {
+            // Elementos del DOM (Pantallas)
+            const loginScreen = document.getElementById('login-screen');
+            const areaPersonalScreen = document.getElementById('area-personal-screen');
+            const dashboardScreen = document.getElementById('dashboard-screen');
+            
+            // Elementos Login
+            const btnIngresar = document.getElementById('btn-ingresar');
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            const loginError = document.getElementById('login-error');
+            
+            // Elementos Área Personal
+            const cardCursoTmmi = document.getElementById('card-curso-tmmi');
+
+            // Elementos IA Predictiva
+            const btnEjecutar = document.getElementById('btn-ejecutar');
+            const btnEjecutarText = document.getElementById('btn-ejecutar-text');
+            const iconRefresh = document.getElementById('icon-refresh');
+            
+            // Lógica PANTALLA 1: Login
+            btnIngresar.addEventListener('click', () => {
+                const user = usernameInput.value.trim();
+                const pass = passwordInput.value;
+                
+                if (user === 'profesor@tmmi.edu' && pass === 'tmmi5opt') {
+                    loginError.textContent = '';
+                    loginScreen.classList.add('fade-out');
+                    setTimeout(() => {
+                        loginScreen.classList.add('hidden');
+                        areaPersonalScreen.classList.remove('hidden');
+                    }, 500); // Coincide con la transición CSS
+                } else {
+                    loginError.textContent = 'Credenciales incorrectas. Intente nuevamente.';
+                }
+            });
+
+            passwordInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') btnIngresar.click();
+            });
+            usernameInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') btnIngresar.click();
+            });
+
+            // Lógica PANTALLA 2: Navegar al Curso
+            cardCursoTmmi.addEventListener('click', () => {
+                areaPersonalScreen.classList.add('hidden');
+                dashboardScreen.classList.remove('hidden');
+            });
+
+            // Lógica PANTALLA 3: Simulación IA
+            btnEjecutar.addEventListener('click', () => {
+                // Estado: Procesando
+                btnEjecutar.disabled = true;
+                btnEjecutarText.textContent = 'Procesando...';
+                iconRefresh.classList.add('spin-icon');
+                
+                // Simular 3 segundos
+                setTimeout(() => {
+                    // Actualizar Contadores
+                    document.getElementById('contador-alto').textContent = '1';
+                    document.getElementById('contador-medio').textContent = '1';
+                    document.getElementById('contador-buen').textContent = '1';
+
+                    // Actualizar Laura (Alto Riesgo)
+                    document.getElementById('riesgo-laura').innerHTML = `
+                        <div class="riesgo-header">
+                            <span class="riesgo-main-text riesgo-rojo">Alto Riesgo (87%)</span>
+                        </div>
+                        <span class="riesgo-sub-text">Alerta crítica: Alto riesgo de deserción por inactividad prolongada y falta de entregas.</span>
+                    `;
+
+                    // Actualizar Ana (Riesgo Medio)
+                    document.getElementById('riesgo-ana').innerHTML = `
+                        <div class="riesgo-header">
+                            <span class="riesgo-main-text riesgo-naranja">Riesgo Medio (45%)</span>
+                        </div>
+                        <span class="riesgo-sub-text">Riesgo moderado: Alumna irregular, requiere tutoría de seguimiento.</span>
+                    `;
+
+                    // Actualizar Carlos (En Buen Camino)
+                    document.getElementById('riesgo-carlos').innerHTML = `
+                        <div class="riesgo-header">
+                            <span class="riesgo-main-text riesgo-verde">En Buen Camino (12%)</span>
+                        </div>
+                        <span class="riesgo-sub-text">Nivel seguro: Comportamiento estadísticamente estable y al día.</span>
+                    `;
+
+                    // Restaurar botón
+                    btnEjecutar.disabled = false;
+                    btnEjecutarText.textContent = 'Ejecutar IA';
+                    iconRefresh.classList.remove('spin-icon');
+                }, 3000);
+            });
+        });
     </script>
 </body>
 </html>
